@@ -1,8 +1,10 @@
 # Personal Financial Records
 
-> Project pribadi untuk pencatatan keuangan harian.
+> ⚠️ **PERINGATAN: PROJECT PRIBADI** — Repository ini dibuat khusus untuk pencatatan keuangan pribadi. TIDAK untuk digunakan ulang, di-clone, atau dijadikan referensi oleh pihak lain. Kode, konfigurasi form, dan Google Forms ID bersifat privat.
 
-Aplikasi pencatatan keuangan sederhana berbasis web. Data dikirim langsung ke **Google Forms** dan disimpan di **localStorage** untuk riwayat cepat.
+> ⚠️ **WARNING: PERSONAL PROJECT** — This repository is built for personal financial tracking only. NOT intended for reuse, cloning, or reference by others. Code, form configuration, and Google Forms ID are private.
+
+Aplikasi pencatatan keuangan sederhana berbasis web. Data dikirim langsung ke Google Forms dan disimpan di localStorage untuk riwayat cepat.
 
 ## Fitur
 
@@ -26,8 +28,3 @@ Aplikasi pencatatan keuangan sederhana berbasis web. Data dikirim langsung ke **
 2. Isi form pencatatan
 3. Submit → data masuk ke Google Forms + localStorage
 4. Riwayat muncul otomatis di bawah form
-
-## Google Forms
-
-Form action sudah diarahkan ke Google Forms ID:
-[https://docs.google.com/forms/u/0/d/e/1FAIpQLSc0NULD8JRnpXHVtR4WwTxAWka0FaCB0NDahfFIOymbGoYUFg/formResponse](https://docs.google.com/forms/u/0/d/e/1FAIpQLSc0NULD8JRnpXHVtR4WwTxAWka0FaCB0NDahfFIOymbGoYUFg/formResponse)
