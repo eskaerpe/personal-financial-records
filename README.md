@@ -1,5 +1,7 @@
 # Personal Financial Records
 
+> Project pribadi untuk pencatatan keuangan harian.
+
 Aplikasi pencatatan keuangan sederhana berbasis web. Data dikirim langsung ke **Google Forms** dan disimpan di **localStorage** untuk riwayat cepat.
 
 ## Fitur
