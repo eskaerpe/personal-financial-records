@@ -1,0 +1,898 @@
+<!doctype html>
+<html lang="id" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#ffffff" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <title>Pencatatan Keuangan</title>
+  <script src="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f1f5f9;
+      --card-bg: #ffffff;
+      --card-border: #e2e8f0;
+      --text: #0f172a;
+      --text-secondary: #475569;
+      --label: #334155;
+      --border: #cbd5e1;
+      --border-focus: #3b82f6;
+      --placeholder: #94a3b8;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --primary-text: #ffffff;
+      --error: #dc2626;
+      --error-bg: #fef2f2;
+      --success: #16a34a;
+      --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -2px rgba(0,0,0,0.04);
+      --radius: 12px;
+      --radius-sm: 8px;
+      --transition: 0.2s ease;
+      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+      --divider: #e2e8f0;
+      --row-hover: #f8fafc;
+      --scrollbar: #cbd5e1;
+      --toggle-bg: #e2e8f0;
+      --option-hover: #f1f5f9;
+      --option-selected: #eff6ff;
+    }
+
+    [data-theme="dark"] {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --card-border: #334155;
+      --text: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --label: #cbd5e1;
+      --border: #475569;
+      --border-focus: #60a5fa;
+      --placeholder: #64748b;
+      --primary: #3b82f6;
+      --primary-hover: #60a5fa;
+      --primary-text: #ffffff;
+      --error: #f87171;
+      --error-bg: #451a1a;
+      --success: #4ade80;
+      --shadow: 0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2);
+      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.4), 0 4px 6px -2px rgba(0,0,0,0.2);
+      --divider: #334155;
+      --row-hover: #1a2538;
+      --scrollbar: #475569;
+      --toggle-bg: #334155;
+      --option-hover: #1e293b;
+      --option-selected: #172554;
+    }
+
+    html { font-size: 16px; -webkit-text-size-adjust: 100%; }
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 16px;
+      transition: background var(--transition), color var(--transition);
+      line-height: 1.5;
+    }
+
+    .theme-toggle {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      z-index: 100;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 1px solid var(--divider);
+      background: var(--card-bg);
+      color: var(--text);
+      font-size: 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--shadow);
+      transition: background var(--transition), color var(--transition), border-color var(--transition);
+    }
+    .theme-toggle:hover { background: var(--option-hover); }
+    .theme-toggle:active { transform: scale(0.95); }
+
+    .page-title {
+      text-align: center;
+      font-size: 20px;
+      font-weight: 700;
+      margin-top: 4px;
+      margin-bottom: 20px;
+      color: var(--text);
+    }
+    .page-title i { margin-right: 8px; color: var(--primary); vertical-align: middle; }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 20px;
+      max-width: 480px;
+      margin: 0 auto 16px;
+      transition: background var(--transition), border-color var(--transition), box-shadow var(--transition);
+    }
+
+    .field { margin-bottom: 18px; }
+    .field:last-of-type { margin-bottom: 0; }
+    .field-label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--label);
+      margin-bottom: 6px;
+      letter-spacing: 0.01em;
+    }
+
+    .input-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    .input-wrap .input-icon {
+      position: absolute;
+      left: 12px;
+      font-size: 18px;
+      color: var(--text-secondary);
+      pointer-events: none;
+      transition: color var(--transition);
+    }
+    .input-wrap .input-icon.error { color: var(--error); }
+
+    .input-wrap input,
+    .input-wrap input[type="date"] {
+      width: 100%;
+      height: 46px;
+      padding: 0 12px 0 40px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--card-bg);
+      color: var(--text);
+      font-size: 15px;
+      font-family: var(--font);
+      transition: border-color var(--transition), box-shadow var(--transition), background var(--transition);
+      outline: none;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+    .input-wrap input:focus {
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+    }
+    .input-wrap input.error {
+      border-color: var(--error);
+      box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+    }
+    .input-wrap input::placeholder { color: var(--placeholder); }
+    .input-wrap input[type="date"] { padding-right: 12px; }
+    .input-wrap input[type="date"]::-webkit-calendar-picker-indicator {
+      filter: var(--date-icon-filter, none);
+      opacity: 0.6;
+      cursor: pointer;
+    }
+    [data-theme="dark"] .input-wrap input[type="date"]::-webkit-calendar-picker-indicator {
+      filter: invert(1);
+    }
+
+    .error-msg {
+      font-size: 12px;
+      color: var(--error);
+      margin-top: 4px;
+      display: none;
+      align-items: center;
+      gap: 4px;
+    }
+    .error-msg.show { display: flex; }
+    .error-msg i { font-size: 14px; }
+
+    /* ─── Custom Select ─── */
+    .select-wrap {
+      position: relative;
+    }
+    .select-wrap select {
+      display: none;
+    }
+    .select-trigger {
+      width: 100%;
+      height: 46px;
+      padding: 0 38px 0 40px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--card-bg);
+      color: var(--text);
+      font-size: 15px;
+      font-family: var(--font);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: border-color var(--transition), box-shadow var(--transition), background var(--transition);
+      outline: none;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .select-trigger .trig-icon { font-size: 18px; color: var(--text-secondary); flex-shrink: 0; }
+    .select-trigger .trig-label { flex: 1; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .select-trigger .placeholder { color: var(--placeholder); }
+    .select-trigger .arrow { font-size: 14px; color: var(--text-secondary); margin-left: auto; flex-shrink: 0; transition: transform var(--transition); }
+    .select-trigger.open .arrow { transform: rotate(180deg); }
+    .select-trigger:focus { border-color: var(--border-focus); box-shadow: 0 0 0 3px rgba(59,130,246,0.15); }
+    .select-trigger.error { border-color: var(--error); box-shadow: 0 0 0 3px rgba(220,38,38,0.1); }
+
+    .select-dropdown {
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      right: 0;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-sm);
+      box-shadow: var(--shadow-lg);
+      z-index: 50;
+      max-height: 260px;
+      overflow-y: auto;
+      display: none;
+    }
+    .select-dropdown.open { display: block; }
+    .select-dropdown::-webkit-scrollbar { width: 4px; }
+    .select-dropdown::-webkit-scrollbar-thumb { background: var(--scrollbar); border-radius: 4px; }
+
+    .select-option {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      cursor: pointer;
+      transition: background 0.15s;
+      font-size: 14px;
+      color: var(--text);
+    }
+    .select-option:first-child { border-radius: var(--radius-sm) var(--radius-sm) 0 0; }
+    .select-option:last-child { border-radius: 0 0 var(--radius-sm) var(--radius-sm); }
+    .select-option:hover { background: var(--option-hover); }
+    .select-option.selected { background: var(--option-selected); font-weight: 600; }
+    .select-option i { font-size: 18px; color: var(--text-secondary); flex-shrink: 0; width: 22px; text-align: center; }
+
+    .input-wrap .icon-left { left: 12px; }
+    .input-wrap input.no-icon { padding-left: 12px; }
+
+    /* ─── Submit ─── */
+    .submit-btn {
+      width: 100%;
+      height: 48px;
+      border: none;
+      border-radius: var(--radius-sm);
+      background: var(--primary);
+      color: var(--primary-text);
+      font-size: 16px;
+      font-weight: 600;
+      font-family: var(--font);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background var(--transition), transform 0.15s;
+      margin-top: 6px;
+    }
+    .submit-btn:hover { background: var(--primary-hover); }
+    .submit-btn:active { transform: scale(0.98); }
+    .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+    .submit-btn i { font-size: 20px; }
+    .submit-btn .spinner {
+      display: none;
+      width: 20px;
+      height: 20px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+    }
+    .submit-btn.loading .spinner { display: inline-block; }
+    .submit-btn.loading .btn-text { display: none; }
+    .submit-btn.loading .btn-icon { display: none; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .submit-success {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 14px;
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: var(--radius-sm);
+      color: var(--success);
+      font-size: 14px;
+      font-weight: 500;
+      margin-top: 6px;
+    }
+    [data-theme="dark"] .submit-success {
+      background: #052e16;
+      border-color: #166534;
+    }
+    .submit-success.show { display: flex; }
+    .submit-success i { font-size: 18px; }
+
+    /* ─── History ─── */
+    .history-section { margin-top: 0; }
+    .history-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    .history-header h2 {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .history-header h2 i { color: var(--primary); font-size: 20px; }
+    .history-count {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      background: var(--toggle-bg);
+      padding: 2px 10px;
+      border-radius: 20px;
+    }
+
+    .btn-clear {
+      padding: 6px 14px;
+      border: 1px solid var(--error);
+      border-radius: var(--radius-sm);
+      background: transparent;
+      color: var(--error);
+      font-size: 12px;
+      font-weight: 600;
+      font-family: var(--font);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: background 0.15s, color 0.15s;
+    }
+    .btn-clear:hover { background: var(--error-bg); }
+
+    .table-wrap {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      margin: 0 -20px;
+      padding: 0 20px;
+    }
+    .table-wrap::-webkit-scrollbar { height: 3px; }
+    .table-wrap::-webkit-scrollbar-thumb { background: var(--scrollbar); border-radius: 4px; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    thead th {
+      text-align: left;
+      padding: 10px 8px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      border-bottom: 1px solid var(--divider);
+      white-space: nowrap;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    tbody td {
+      padding: 10px 8px;
+      border-bottom: 1px solid var(--divider);
+      color: var(--text);
+      white-space: nowrap;
+    }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover td { background: var(--row-hover); }
+    td .cat-icon { margin-right: 6px; font-size: 14px; vertical-align: middle; }
+    .td-total { font-weight: 600; text-align: right; font-variant-numeric: tabular-nums; }
+    .td-date { color: var(--text-secondary); font-size: 12px; font-variant-numeric: tabular-nums; }
+    .td-cat { display: flex; align-items: center; gap: 4px; }
+
+    .empty-state {
+      text-align: center;
+      padding: 32px 16px;
+      color: var(--text-secondary);
+    }
+    .empty-state i { font-size: 36px; display: block; margin-bottom: 12px; opacity: 0.4; }
+    .empty-state p { font-size: 14px; }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: #1e293b;
+      color: #f1f5f9;
+      padding: 12px 20px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-weight: 500;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      opacity: 0;
+      transition: transform 0.35s ease, opacity 0.35s ease;
+      z-index: 200;
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    [data-theme="dark"] .toast { background: #334155; }
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    @media (min-width: 520px) {
+      body { padding: 32px 24px; }
+      .card { padding: 28px; }
+      .theme-toggle { top: 24px; right: 24px; }
+      .page-title { font-size: 22px; margin-bottom: 24px; }
+      .table-wrap { margin: 0 -28px; padding: 0 28px; }
+    }
+  </style>
+</head>
+<body>
+
+  <button class="theme-toggle" id="themeToggle" type="button" aria-label="Ganti tema">
+    <i class="ph ph-moon" id="themeIcon"></i>
+  </button>
+
+  <div style="max-width: 480px; margin: 0 auto;">
+    <h1 class="page-title"><i class="ph ph-wallet"></i>Pencatatan Keuangan</h1>
+  </div>
+
+  <div class="card">
+    <form id="entryForm" action="https://docs.google.com/forms/u/0/d/e/1FAIpQLSc0NULD8JRnpXHVtR4WwTxAWka0FaCB0NDahfFIOymbGoYUFg/formResponse" method="POST" target="formTarget">
+      <div class="field">
+        <label class="field-label" for="tanggalPengeluaran">Tanggal</label>
+        <div class="input-wrap">
+          <i class="ph ph-calendar-blank input-icon"></i>
+          <input type="date" name="entry.2074905714" id="tanggalPengeluaran" required />
+        </div>
+        <span class="error-msg" id="error-tanggal"><i class="ph ph-warning-circle"></i> <span></span></span>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="kategoriPengeluaran">Kategori</label>
+        <div class="select-wrap" id="kategoriWrap">
+          <div class="select-trigger" id="kategoriTrigger" role="combobox" aria-haspopup="listbox" aria-expanded="false" tabindex="0">
+            <i class="ph ph-list trig-icon"></i>
+            <span class="trig-label placeholder">Pilih kategori</span>
+            <i class="ph ph-caret-down arrow"></i>
+          </div>
+          <div class="select-dropdown" id="kategoriDropdown" role="listbox">
+            <div class="select-option" data-value=""><i class="ph ph-list"></i> Pilih kategori</div>
+            <div class="select-option" data-value="Makanan Utama"><i class="ph ph-fork-knife"></i> Makanan Utama</div>
+            <div class="select-option" data-value="Snacks &amp; Minuman"><i class="ph ph-cookie"></i> Snacks &amp; Minuman</div>
+            <div class="select-option" data-value="Hangout &amp; Hiburan"><i class="ph ph-controller"></i> Hangout &amp; Hiburan</div>
+            <div class="select-option" data-value="Transportasi"><i class="ph ph-bus"></i> Transportasi</div>
+            <div class="select-option" data-value="Dating / Spesial"><i class="ph ph-heart"></i> Dating / Spesial</div>
+            <div class="select-option" data-value="Belanja Online"><i class="ph ph-shopping-cart"></i> Belanja Online</div>
+            <div class="select-option" data-value="Kebutuhan Kuliah"><i class="ph ph-book-open"></i> Kebutuhan Kuliah</div>
+            <div class="select-option" data-value="Perawatan Diri"><i class="ph ph-spray-bottle"></i> Perawatan Diri</div>
+            <div class="select-option" data-value="Belanja Barang"><i class="ph ph-bag"></i> Belanja Barang</div>
+            <div class="select-option" data-value="Transfer &amp; Sosial"><i class="ph ph-arrows-left-right"></i> Transfer &amp; Sosial</div>
+            <div class="select-option" data-value="Biaya Admin Bank"><i class="ph ph-bank"></i> Biaya Admin Bank</div>
+            <div class="select-option" data-value="Kuota &amp; Langganan Digital"><i class="ph ph-wifi-high"></i> Kuota &amp; Langganan Digital</div>
+          </div>
+          <select name="entry.237279586" id="kategoriPengeluaran" required>
+            <option value="">Pilih kategori</option>
+            <option value="Makanan Utama">Makanan Utama</option>
+            <option value="Snacks & Minuman">Snacks & Minuman</option>
+            <option value="Hangout & Hiburan">Hangout & Hiburan</option>
+            <option value="Transportasi">Transportasi</option>
+            <option value="Dating / Spesial">Dating / Spesial</option>
+            <option value="Belanja Online">Belanja Online</option>
+            <option value="Kebutuhan Kuliah">Kebutuhan Kuliah</option>
+            <option value="Perawatan Diri">Perawatan Diri</option>
+            <option value="Belanja Barang">Belanja Barang</option>
+            <option value="Transfer & Sosial">Transfer & Sosial</option>
+            <option value="Biaya Admin Bank">Biaya Admin Bank</option>
+            <option value="Kuota & Langganan Digital">Kuota & Langganan Digital</option>
+          </select>
+        </div>
+        <span class="error-msg" id="error-kategori"><i class="ph ph-warning-circle"></i> <span></span></span>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="detailPengeluaran">Detail</label>
+        <div class="input-wrap">
+          <i class="ph ph-note-pencil input-icon"></i>
+          <input type="text" name="entry.1447167263" id="detailPengeluaran" placeholder="Mis: Nasi goreng + es teh" required minlength="3" />
+        </div>
+        <span class="error-msg" id="error-detail"><i class="ph ph-warning-circle"></i> <span></span></span>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="totalPengeluaran">Total (Rp)</label>
+        <div class="input-wrap">
+          <i class="ph ph-currency-circle-dollar input-icon"></i>
+          <input type="text" name="entry.2141961271" id="totalPengeluaran" placeholder="0" required autocomplete="off" />
+        </div>
+        <span class="error-msg" id="error-total"><i class="ph ph-warning-circle"></i> <span></span></span>
+      </div>
+
+      <button class="submit-btn" type="submit" id="submitBtn">
+        <i class="ph ph-check-circle btn-icon"></i>
+        <span class="btn-text">Simpan</span>
+        <span class="spinner"></span>
+      </button>
+
+      <div class="submit-success" id="submitSuccess">
+        <i class="ph ph-check-circle"></i> Data berhasil disimpan
+      </div>
+    </form>
+    <iframe name="formTarget" style="display:none"></iframe>
+  </div>
+
+  <div class="card history-section">
+    <div class="history-header">
+      <h2><i class="ph ph-clock-counter-clockwise"></i> Riwayat</h2>
+      <span class="history-count" id="historyCount">0</span>
+    </div>
+
+    <div class="empty-state" id="emptyState">
+      <i class="ph ph-database"></i>
+      <p>Belum ada catatan</p>
+    </div>
+
+    <div class="table-wrap" id="tableWrap" style="display:none">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Tanggal</th>
+            <th>Kategori</th>
+            <th>Detail</th>
+            <th style="text-align:right">Total</th>
+          </tr>
+        </thead>
+        <tbody id="historyBody"></tbody>
+      </table>
+    </div>
+
+    <div id="clearWrap" style="display:none; margin-top: 12px; text-align: right;">
+      <button class="btn-clear" id="btnClear" type="button">
+        <i class="ph ph-trash"></i> Hapus Riwayat
+      </button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const STORAGE_KEY = 'financial_records';
+
+    /* ─── Theme ─── */
+    const html = document.documentElement;
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = document.getElementById('themeIcon');
+
+    function setTheme(theme) {
+      html.setAttribute('data-theme', theme);
+      localStorage.setItem('theme', theme);
+      themeIcon.className = theme === 'dark' ? 'ph ph-sun' : 'ph ph-moon';
+    }
+
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    setTheme(savedTheme);
+
+    themeToggle.addEventListener('click', () => {
+      const current = html.getAttribute('data-theme');
+      setTheme(current === 'dark' ? 'light' : 'dark');
+    });
+
+    /* ─── Custom Select ─── */
+    const trigger = document.getElementById('kategoriTrigger');
+    const dropdown = document.getElementById('kategoriDropdown');
+    const nativeSelect = document.getElementById('kategoriPengeluaran');
+    const trigIcon = trigger.querySelector('.trig-icon');
+    const trigLabel = trigger.querySelector('.trig-label');
+
+    const categoryIcons = {
+      '': 'ph-list',
+      'Makanan Utama': 'ph-fork-knife',
+      'Snacks & Minuman': 'ph-cookie',
+      'Hangout & Hiburan': 'ph-controller',
+      'Transportasi': 'ph-bus',
+      'Dating / Spesial': 'ph-heart',
+      'Belanja Online': 'ph-shopping-cart',
+      'Kebutuhan Kuliah': 'ph-book-open',
+      'Perawatan Diri': 'ph-spray-bottle',
+      'Belanja Barang': 'ph-bag',
+      'Transfer & Sosial': 'ph-arrows-left-right',
+      'Biaya Admin Bank': 'ph-bank',
+      'Kuota & Langganan Digital': 'ph-wifi-high'
+    };
+
+    function selectOption(value) {
+      const opt = dropdown.querySelector(`.select-option[data-value="${CSS.escape(value)}"]`);
+      if (!opt) return;
+
+      dropdown.querySelectorAll('.select-option').forEach(o => o.classList.remove('selected'));
+      if (value) opt.classList.add('selected');
+
+      const iconName = categoryIcons[value] || 'list';
+      trigIcon.className = `ph ${iconName} trig-icon`;
+      trigLabel.textContent = opt.querySelector('span') ? opt.querySelector('span').textContent : opt.textContent.trim();
+      trigLabel.classList.toggle('placeholder', !value);
+
+      nativeSelect.value = value;
+      hideDropdown();
+      validateField('kategori');
+    }
+
+    function showDropdown() {
+      dropdown.classList.add('open');
+      trigger.classList.add('open');
+      trigger.setAttribute('aria-expanded', 'true');
+    }
+
+    function hideDropdown() {
+      dropdown.classList.remove('open');
+      trigger.classList.remove('open');
+      trigger.setAttribute('aria-expanded', 'false');
+    }
+
+    trigger.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isOpen = dropdown.classList.contains('open');
+      if (isOpen) hideDropdown(); else showDropdown();
+    });
+
+    trigger.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        const isOpen = dropdown.classList.contains('open');
+        if (isOpen) hideDropdown(); else showDropdown();
+      }
+      if (e.key === 'Escape') hideDropdown();
+    });
+
+    dropdown.querySelectorAll('.select-option').forEach(opt => {
+      opt.addEventListener('click', () => {
+        selectOption(opt.getAttribute('data-value'));
+      });
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.select-wrap')) hideDropdown();
+    });
+
+    /* ─── Validation ─── */
+    function showError(field, msg) {
+      const el = document.getElementById(`error-${field}`);
+      const input = field === 'kategori' ? trigger : document.getElementById(
+        field === 'tanggal' ? 'tanggalPengeluaran' :
+        field === 'detail' ? 'detailPengeluaran' : 'totalPengeluaran'
+      );
+      const icon = input.closest('.input-wrap')?.querySelector('.input-icon');
+      el.querySelector('span').textContent = msg;
+      el.classList.add('show');
+      if (input.classList) input.classList.add('error');
+      if (icon) icon.classList.add('error');
+    }
+
+    function clearError(field) {
+      const el = document.getElementById(`error-${field}`);
+      const input = field === 'kategori' ? trigger : document.getElementById(
+        field === 'tanggal' ? 'tanggalPengeluaran' :
+        field === 'detail' ? 'detailPengeluaran' : 'totalPengeluaran'
+      );
+      const icon = input.closest('.input-wrap')?.querySelector('.input-icon');
+      el.classList.remove('show');
+      if (input.classList) input.classList.remove('error');
+      if (icon) icon.classList.remove('error');
+    }
+
+    function validateField(field) {
+      let valid = true;
+      if (field === 'tanggal') {
+        const val = document.getElementById('tanggalPengeluaran').value;
+        if (!val) { showError('tanggal', 'Tanggal wajib diisi'); valid = false; }
+        else { clearError('tanggal'); }
+      }
+      if (field === 'kategori') {
+        const val = nativeSelect.value;
+        if (!val) { showError('kategori', 'Pilih kategori'); valid = false; }
+        else { clearError('kategori'); }
+      }
+      if (field === 'detail') {
+        const val = document.getElementById('detailPengeluaran').value.trim();
+        if (!val) { showError('detail', 'Detail wajib diisi'); valid = false; }
+        else if (val.length < 3) { showError('detail', 'Minimal 3 karakter'); valid = false; }
+        else { clearError('detail'); }
+      }
+      if (field === 'total') {
+        const raw = document.getElementById('totalPengeluaran').value.replace(/[^\d]/g, '');
+        if (!raw) { showError('total', 'Total wajib diisi'); valid = false; }
+        else if (isNaN(Number(raw)) || Number(raw) <= 0) { showError('total', 'Masukkan angka valid'); valid = false; }
+        else { clearError('total'); }
+      }
+      return valid;
+    }
+
+    /* ─── Rupiah Format on Input ─── */
+    const totalInput = document.getElementById('totalPengeluaran');
+    totalInput.addEventListener('input', function () {
+      let raw = this.value.replace(/[^\d]/g, '');
+      if (raw) {
+        const num = Number(raw);
+        this.value = new Intl.NumberFormat('id-ID').format(num);
+      } else {
+        this.value = '';
+      }
+      const err = document.getElementById('error-total');
+      if (err.classList.contains('show')) validateField('total');
+    });
+
+    totalInput.addEventListener('blur', function () {
+      const raw = this.value.replace(/[^\d]/g, '');
+      if (!raw) { this.value = ''; return; }
+      const num = Number(raw);
+      this.value = new Intl.NumberFormat('id-ID').format(num);
+    });
+
+    document.getElementById('tanggalPengeluaran').addEventListener('blur', () => validateField('tanggal'));
+    document.getElementById('detailPengeluaran').addEventListener('blur', () => validateField('detail'));
+    totalInput.addEventListener('blur', () => validateField('total'));
+
+    document.getElementById('tanggalPengeluaran').addEventListener('change', () => validateField('tanggal'));
+    document.getElementById('detailPengeluaran').addEventListener('input', () => {
+      if (document.getElementById('error-detail').classList.contains('show')) validateField('detail');
+    });
+
+    /* ─── Toast ─── */
+    function showToast(msg, icon) {
+      const toast = document.getElementById('toast');
+      toast.innerHTML = icon ? `<i class="ph ${icon}"></i> ${msg}` : msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2500);
+    }
+
+    /* ─── Form Submit ─── */
+    const form = document.getElementById('entryForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const submitSuccess = document.getElementById('submitSuccess');
+    const formTarget = document.querySelector('iframe[name="formTarget"]');
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      const validTanggal = validateField('tanggal');
+      const validKategori = validateField('kategori');
+      const validDetail = validateField('detail');
+      const validTotal = validateField('total');
+
+      if (!validTanggal || !validKategori || !validDetail || !validTotal) {
+        const firstError = document.querySelector('.error-msg.show');
+        if (firstError) firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+
+      submitBtn.classList.add('loading');
+      submitBtn.disabled = true;
+      submitSuccess.classList.remove('show');
+
+      const entry = {
+        id: Date.now(),
+        tanggal: document.getElementById('tanggalPengeluaran').value,
+        kategori: nativeSelect.value,
+        detail: document.getElementById('detailPengeluaran').value.trim(),
+        total: Number(totalInput.value.replace(/[^\d]/g, '')),
+        timestamp: new Date().toISOString()
+      };
+
+      saveToHistory(entry);
+
+      formTarget.onload = function () {
+        submitBtn.classList.remove('loading');
+        submitBtn.disabled = false;
+        submitSuccess.classList.add('show');
+        form.reset();
+        trigIcon.className = 'ph ph-list trig-icon';
+        trigLabel.textContent = 'Pilih kategori';
+        trigLabel.classList.add('placeholder');
+        nativeSelect.value = '';
+        dropdown.querySelectorAll('.select-option').forEach(o => o.classList.remove('selected'));
+        document.querySelectorAll('.error-msg').forEach(el => el.classList.remove('show'));
+        document.querySelectorAll('.error').forEach(el => el.classList.remove('error'));
+        document.querySelectorAll('.input-icon.error').forEach(el => el.classList.remove('error'));
+        renderHistory();
+        showToast('Catatan berhasil disimpan', 'ph-check-circle');
+        setTimeout(() => submitSuccess.classList.remove('show'), 3000);
+      };
+
+      formTarget.onerror = function () {
+        submitBtn.classList.remove('loading');
+        submitBtn.disabled = false;
+        showToast('Gagal menyimpan, coba lagi', 'ph-warning-circle');
+      };
+
+      var rawTotal = totalInput.value.replace(/[^\d]/g, '');
+      totalInput.value = rawTotal;
+      form.submit();
+    });
+
+    /* ─── LocalStorage History ─── */
+    function getHistory() {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+      } catch { return []; }
+    }
+
+    function saveToHistory(entry) {
+      const records = getHistory();
+      records.unshift(entry);
+      if (records.length > 50) records.length = 50;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+    }
+
+    function formatRupiah(num) {
+      return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(num);
+    }
+
+    function renderHistory() {
+      const records = getHistory();
+      const emptyState = document.getElementById('emptyState');
+      const tableWrap = document.getElementById('tableWrap');
+      const clearWrap = document.getElementById('clearWrap');
+      const historyCount = document.getElementById('historyCount');
+      const tbody = document.getElementById('historyBody');
+
+      historyCount.textContent = records.length;
+
+      if (records.length === 0) {
+        emptyState.style.display = 'block';
+        tableWrap.style.display = 'none';
+        clearWrap.style.display = 'none';
+        return;
+      }
+
+      emptyState.style.display = 'none';
+      tableWrap.style.display = 'block';
+      clearWrap.style.display = 'block';
+
+      const iconMap = categoryIcons;
+
+      tbody.innerHTML = records.slice(0, 10).map((r, i) => {
+        const catIcon = iconMap[r.kategori] || 'tag';
+        const tanggal = r.tanggal ? new Date(r.tanggal + 'T00:00:00').toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : '-';
+        return `<tr>
+          <td style="color:var(--text-secondary);font-size:11px">${i + 1}</td>
+          <td class="td-date">${tanggal}</td>
+          <td><span class="td-cat"><i class="ph ${catIcon} cat-icon"></i>${r.kategori}</span></td>
+          <td style="max-width:120px;overflow:hidden;text-overflow:ellipsis">${r.detail}</td>
+          <td class="td-total">${formatRupiah(r.total)}</td>
+        </tr>`;
+      }).join('');
+    }
+
+    document.getElementById('btnClear').addEventListener('click', () => {
+      if (confirm('Hapus semua riwayat?')) {
+        localStorage.removeItem(STORAGE_KEY);
+        renderHistory();
+        showToast('Riwayat dihapus', 'ph-trash');
+      }
+    });
+
+    renderHistory();
+  </script>
+
+</body>
+</html>
