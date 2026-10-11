@@ -457,12 +457,12 @@
   </div>
 
   <div class="card">
-    <form id="entryForm" action="https://docs.google.com/forms/u/0/d/e/1FAIpQLSc0NULD8JRnpXHVtR4WwTxAWka0FaCB0NDahfFIOymbGoYUFg/formResponse" method="POST" target="formTarget">
+    <form id="entryForm">
       <div class="field">
         <label class="field-label" for="tanggalPengeluaran">Tanggal</label>
         <div class="input-wrap">
           <i class="ph ph-calendar-blank input-icon"></i>
-          <input type="date" name="entry.2074905714" id="tanggalPengeluaran" required />
+          <input type="date" name="tanggal" id="tanggalPengeluaran" required />
         </div>
         <span class="error-msg" id="error-tanggal"><i class="ph ph-warning-circle"></i> <span></span></span>
       </div>
@@ -490,7 +490,7 @@
             <div class="select-option" data-value="Biaya Admin Bank"><i class="ph ph-bank"></i> Biaya Admin Bank</div>
             <div class="select-option" data-value="Kuota &amp; Langganan Digital"><i class="ph ph-wifi-high"></i> Kuota &amp; Langganan Digital</div>
           </div>
-          <select name="entry.237279586" id="kategoriPengeluaran" required>
+          <select name="kategori" id="kategoriPengeluaran" required>
             <option value="">Pilih kategori</option>
             <option value="Makanan Utama">Makanan Utama</option>
             <option value="Snacks & Minuman">Snacks & Minuman</option>
@@ -513,7 +513,7 @@
         <label class="field-label" for="detailPengeluaran">Detail</label>
         <div class="input-wrap">
           <i class="ph ph-note-pencil input-icon"></i>
-          <input type="text" name="entry.1447167263" id="detailPengeluaran" placeholder="Mis: Nasi goreng + es teh" required minlength="3" />
+          <input type="text" name="detail" id="detailPengeluaran" placeholder="Mis: Nasi goreng + es teh" required minlength="3" />
         </div>
         <span class="error-msg" id="error-detail"><i class="ph ph-warning-circle"></i> <span></span></span>
       </div>
@@ -522,7 +522,7 @@
         <label class="field-label" for="totalPengeluaran">Total (Rp)</label>
         <div class="input-wrap">
           <i class="ph ph-currency-circle-dollar input-icon"></i>
-          <input type="text" name="entry.2141961271" id="totalPengeluaran" placeholder="0" required autocomplete="off" />
+          <input type="text" name="total" id="totalPengeluaran" placeholder="0" required autocomplete="off" />
         </div>
         <span class="error-msg" id="error-total"><i class="ph ph-warning-circle"></i> <span></span></span>
       </div>
@@ -537,7 +537,6 @@
         <i class="ph ph-check-circle"></i> Data berhasil disimpan
       </div>
     </form>
-    <iframe name="formTarget" style="display:none"></iframe>
   </div>
 
   <div class="card history-section">
@@ -769,9 +768,9 @@
     const form = document.getElementById('entryForm');
     const submitBtn = document.getElementById('submitBtn');
     const submitSuccess = document.getElementById('submitSuccess');
-    const formTarget = document.querySelector('iframe[name="formTarget"]');
+    const APP_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxG7GMKwZ4pRA1AjkX6u9wLCmrfv8oKuQLEK6VWFOfa1ZwuGY0EpNeBMptV3zQD62Ui/exec';
 
-    form.addEventListener('submit', function (e) {
+    form.addEventListener('submit', async function (e) {
       e.preventDefault();
 
       const validTanggal = validateField('tanggal');
@@ -789,18 +788,35 @@
       submitBtn.disabled = true;
       submitSuccess.classList.remove('show');
 
+      const rawTotal = totalInput.value.replace(/[^\d]/g, '');
       const entry = {
         id: Date.now(),
         tanggal: document.getElementById('tanggalPengeluaran').value,
         kategori: nativeSelect.value,
         detail: document.getElementById('detailPengeluaran').value.trim(),
-        total: Number(totalInput.value.replace(/[^\d]/g, '')),
+        total: Number(rawTotal),
         timestamp: new Date().toISOString()
       };
 
-      saveToHistory(entry);
+      // URLSearchParams body => application/x-www-form-urlencoded, a CORS
+      // "simple request". Do NOT switch to a JSON content-type: it would
+      // trigger a preflight OPTIONS that Apps Script does not answer.
+      const payload = new URLSearchParams({
+        tanggal: entry.tanggal,
+        kategori: entry.kategori,
+        'detail pengeluaran': entry.detail,
+        'total pengeluaran': rawTotal
+      });
 
-      formTarget.onload = function () {
+      try {
+        const res = await fetch(APP_SCRIPT_URL, { method: 'POST', body: payload });
+        const data = await res.json();
+
+        if (!res.ok || data.result !== 'success') {
+          throw new Error(data.error || `HTTP ${res.status}`);
+        }
+
+        saveToHistory(entry);
         submitBtn.classList.remove('loading');
         submitBtn.disabled = false;
         submitSuccess.classList.add('show');
@@ -816,17 +832,11 @@
         renderHistory();
         showToast('Catatan berhasil disimpan', 'ph-check-circle');
         setTimeout(() => submitSuccess.classList.remove('show'), 3000);
-      };
-
-      formTarget.onerror = function () {
+      } catch (err) {
         submitBtn.classList.remove('loading');
         submitBtn.disabled = false;
         showToast('Gagal menyimpan, coba lagi', 'ph-warning-circle');
-      };
-
-      var rawTotal = totalInput.value.replace(/[^\d]/g, '');
-      totalInput.value = rawTotal;
-      form.submit();
+      }
     });
 
     /* ─── LocalStorage History ─── */

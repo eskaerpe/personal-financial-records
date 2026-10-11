@@ -1,10 +1,10 @@
 # Personal Financial Records
 
-> ⚠️ **PERINGATAN: PROJECT PRIBADI** — Repository ini dibuat khusus untuk pencatatan keuangan pribadi. TIDAK untuk digunakan ulang, di-clone, atau dijadikan referensi oleh pihak lain. Kode, konfigurasi form, dan Google Forms ID bersifat privat.
+> ⚠️ **PERINGATAN: PROJECT PRIBADI** — Repository ini dibuat khusus untuk pencatatan keuangan pribadi. TIDAK untuk digunakan ulang, di-clone, atau dijadikan referensi oleh pihak lain. Kode, konfigurasi form, dan ID Web App Google Apps Script bersifat privat.
 
-> ⚠️ **WARNING: PERSONAL PROJECT** — This repository is built for personal financial tracking only. NOT intended for reuse, cloning, or reference by others. Code, form configuration, and Google Forms ID are private.
+> ⚠️ **WARNING: PERSONAL PROJECT** — This repository is built for personal financial tracking only. NOT intended for reuse, cloning, or reference by others. Code, form configuration, and Google Apps Script Web App ID are private.
 
-Aplikasi pencatatan keuangan sederhana berbasis web. Data dikirim langsung ke Google Forms dan disimpan di localStorage untuk riwayat cepat.
+Aplikasi pencatatan keuangan sederhana berbasis web. Data dikirim langsung ke backend Google Apps Script Web App dan disimpan di localStorage untuk riwayat cepat.
 
 ## Fitur
 
@@ -20,11 +20,11 @@ Aplikasi pencatatan keuangan sederhana berbasis web. Data dikirim langsung ke Go
 - HTML5 + CSS3 (custom, no framework)
 - Phosphor Icons via CDN
 - Vanilla JavaScript (ES6)
-- Google Forms sebagai backend
+- Google Apps Script Web App sebagai backend
 
 ## Cara Pakai
 
 1. Buka `index.html` di browser
 2. Isi form pencatatan
-3. Submit → data masuk ke Google Forms + localStorage
+3. Submit → data masuk ke Google Apps Script + localStorage
 4. Riwayat muncul otomatis di bawah form
